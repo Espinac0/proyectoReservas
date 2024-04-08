@@ -17,8 +17,10 @@ public class ProyectoReservas {
        
        ventanaLogin vp = new ventanaLogin();
        vp.setVisible(true);
-        
-        
+       /**
+        * 
+        */
+        String aaaaaaaaa;
     }
     
     
