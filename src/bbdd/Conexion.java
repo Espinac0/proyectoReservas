@@ -4,8 +4,7 @@
  */
 package bbdd;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -13,8 +12,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-/**import modelo.Usuario;
-import modelo.Utilidades; */
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+import modelo.Cliente;
+
 
 /**
  * clase donde guardo metodos para establecer conexion y otras cosa que requieran coinsultas
@@ -76,7 +77,7 @@ public class Conexion {
      */
     public static boolean acceder(String user, String pass) {
         try {
-            String consulta = "SELECT usuario, contrasenya FROM usuarios WHERE usuario=? AND contrasenya=?";
+            String consulta = "SELECT Usuario, Contraseña FROM reservas_empleados WHERE Usuario=? AND Contraseña=?";
 
             PreparedStatement pst = conn.prepareCall(consulta);
             ResultSet rs;
@@ -100,7 +101,7 @@ public class Conexion {
      * @return
      */
     public static boolean comprobarDniUsuario(String dni) {
-        String SSQL = "SELECT dni FROM usuarios WHERE dni =?";
+        String SSQL = "SELECT dni FROM reservas_clientes WHERE dni =?";
 
         PreparedStatement pst = null;
         ResultSet rs = null;
@@ -149,20 +150,24 @@ public class Conexion {
      * @param i
      * @return
      */
-    /**public static boolean registrarPersona(Usuario i) {
+    
+    
+    public static boolean registrarCliente(Cliente i) {
         try {
-            String consulta = "INSERT  INTO usuarios(dni,nombre,"
-                    + "apellidos, telefono, usuario, contrasenya)"
-                    + "values (?, ?, ?, ?, ?, ?)";
+            String consulta = "INSERT  INTO reservas_clientes(DNI,nombre,"
+                    + "apellidos, direccion, codigo postal, localidad, telefono_contacto, email)"
+                    + "values (?, ?, ?, ?, ?, ?, ?, ?)";
 
             PreparedStatement pst = conn.prepareStatement(consulta);
 
-            pst.setString(1, i.getDni());
+            pst.setString(1, i.getDNI());
             pst.setString(2, i.getNombre());
             pst.setString(3, i.getApellidos());
-            pst.setInt(4, i.getTelefono());
-            pst.setString(5, i.getUsuario());
-            pst.setString(6, i.getContrasenya());
+            pst.setString(4, i.getDireccion());
+            pst.setInt(5, i.getCodpostal());
+            pst.setString(6, i.getLocalidad());
+            pst.setInt(7, i.getTlefono_contacto());
+            pst.setString(8, i.getEmail());
 
             pst.execute();
 
@@ -171,8 +176,66 @@ public class Conexion {
         }
         return false;
     }
-*/
     
+    public static boolean verificarDniEnBaseDeDatos(String dni) throws SQLException {
+        
+
+            // Consulta SQL para comprobar si el DNI está en la base de datos
+            String sql = "SELECT COUNT(*) FROM reservas_clientes WHERE DNI = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, dni);
+
+            // Ejecutar la consulta
+            ResultSet rs = stmt.executeQuery();
+
+            // Verificar si hay algún resultado
+            if (rs.next()) {
+                int count = rs.getInt(1);
+                return count > 0; // Devuelve true si el DNI está en la base de datos
+            }
+        return false;
+        } 
+        
+    
+
+    /**
+     * Método para recuperar los datos del cliente si el DNI está en la base de datos.
+     * @param dni El DNI del cliente
+     * @return Un objeto Cliente si se encuentra en la base de datos, null en caso contrario
+     * @throws java.sql.SQLException
+     */
+    public static Cliente obtenerDatosCliente(String dni) throws SQLException {
+    // Consulta SQL para obtener los datos del cliente
+    String sql = "SELECT * FROM reservas_clientes WHERE DNI = ?";
+    PreparedStatement stmt = conn.prepareStatement(sql);
+    stmt.setString(1, dni);
+
+    // Ejecutar la consulta
+    ResultSet rs = stmt.executeQuery();
+
+    // Verificar si hay algún resultado
+    if (rs.next()) {
+        // Crear un objeto Cliente con los datos obtenidos de la base de datos
+        Cliente cliente = new Cliente(
+            rs.getString("DNI"),
+            rs.getString("nombre"),
+            rs.getString("apellidos"),
+            rs.getString("direccion"),
+            rs.getInt("codigo postal"),
+            rs.getString("localidad"),
+            rs.getInt("telefono_contacto"),
+            rs.getString("email")
+        );
+
+        return cliente;
+    }
+
+    return null; // Si no se encuentra el cliente, se devuelve null
+}
+
+
+
+
     
     
 }
